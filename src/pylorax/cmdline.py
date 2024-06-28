@@ -250,8 +250,8 @@ def lmc_parser(dracut_default=""):
                              help="Create qcow2 image instead of raw sparse image when making disk images.")
     image_group.add_argument("--qcow2-arg", action="append", dest="qemu_args", default=[],
                              help="Arguments to pass to qemu-img. Pass once for each argument, they will be used for ALL calls to qemu-img.")
-    image_group.add_argument("--compression", default="xz",
-                             help="Compression binary for make-tar. xz, lzma, gzip, and bzip2 are supported. xz is the default.")
+    image_group.add_argument("--compression", default=None,
+                             help="Compression type. Depends on whether squashfs or erofs are being used. See manpages for mksquashfs or mkfs.erofs for details.")
     image_group.add_argument("--compress-arg", action="append", dest="compress_args", default=[],
                              help="Arguments to pass to compression. Pass once for each argument")
     # Group of arguments for appliance creation

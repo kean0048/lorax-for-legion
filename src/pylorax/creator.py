@@ -134,6 +134,20 @@ def squashfs_args(opts):
         compressargs = []
     return (compression, compressargs)
 
+def erofs_args(opts):
+    """ Returns the compression type and args to use when making erofs
+
+    :param opts: ArgumentParser object with compression and compressopts
+    :returns: tuple of compression type and args
+    :rtype: tuple
+    """
+    compression = opts.compression or "lzma"
+    compressargs = []
+    if opts.compress_args:
+        for arg in opts.compress_args:
+            compressargs += arg.split(" ", 1)
+    return (compression, compressargs)
+
 def dracut_args(opts):
     """Return a list of the args to pass to dracut
 
@@ -219,21 +233,23 @@ def make_runtime(opts, mount_dir, work_dir, size=None):
                             variant=opts.variant, bugurl=opts.bugurl, isfinal=opts.isfinal)
 
     rb = RuntimeBuilder(product, arch, skip_branding=True, root=mount_dir)
-    compression, compressargs = squashfs_args(opts)
-
     if opts.rootfs_type == "squashfs":
         log.info("Creating a squashfs only runtime")
+        compression, compressargs = squashfs_args(opts)
         return rb.create_squashfs_runtime(joinpaths(work_dir, RUNTIME), size=size,
                   compression=compression, compressargs=compressargs)
     elif opts.rootfs_type == "squashfs-ext4":
         log.info("Creating a squashfs+ext4 runtime")
+        compression, compressargs = squashfs_args(opts)
         return rb.create_ext4_runtime(joinpaths(work_dir, RUNTIME), size=size,
                   compression=compression, compressargs=compressargs)
     elif opts.rootfs_type == "erofs":
         log.info("Creating a erofs only runtime")
+        compression, compressargs = erofs_args(opts)
         return rb.create_erofs_runtime(joinpaths(work_dir, RUNTIME), size=size)
     elif opts.rootfs_type == "erofs-ext4":
         log.info("Creating a erofs+ext4 runtime")
+        compression, compressargs = erofs_args(opts)
         return rb.create_erofs_ext4_runtime(joinpaths(work_dir, RUNTIME), size=size)
     else:
         raise RuntimeError(f"{opts.rootfs_type} is not a supported type for the root filesystem")
